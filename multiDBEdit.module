@@ -1,0 +1,28 @@
+<?php
+require_once(__DIR__ . '/../DBAccess.config');
+function multiDBEdit_menu() {
+    $items = array();
+
+    $items['multiDBEdit/entryForm'] = array(
+        'title' => 'Multi DB Search / Edit Form',
+        'access arguments' => array('access content'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('entryForm'),
+        'access callback' => TRUE,
+
+        'file' => 'multiDBEdit.inc',
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $items['multiDBEdit/results'] = array(
+        'title' => 'Multi DB Search Edit Results',
+        'access arguments' => array('access content'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('outputForm'),
+
+        'file' => 'multiDBEdit.inc',
+        'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}

@@ -1,0 +1,6 @@
+name = Multi DB Edit
+description = Multi DB Edit Module
+package = MJS1138
+version = VERSION
+core = 7.x
+files[] = multiDBEdit.module
