@@ -88,7 +88,10 @@ function outputForm($form, &$form_state)
                 $tableRowS[] = array($field, $targetTable, $targetField);
             } elseif ($replaceValue == null) {
                 $tableRowS[] = array($field, $targetTable, $targetField, $targetValue);
-                $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'));
+                $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Current Value'));
+            } else {
+                $tableRowS[] = array($field, $targetTable, $targetField, $targetValue, $replaceValue);
+                $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Prior Value'), t('New Value'));
             }
         }
     } else {
@@ -159,12 +162,12 @@ function _buildDatabaseListz($targetTable = null, $targetField = null, $targetVa
                 $result = true;
                 $tableHeader = array(t('Database'));
             } elseif ($targetField == null) { // just show databases w/ targetTable
-                $resultSet = $dbh->query("SELECT * FROM `$targetTable`");
+                $resultSet = $dbh->query("SELECT * FROM `$targetTable`"); // Returns FALSE if execution fails
                 if ($resultSet) {
                     $tableHeader = array(t('Database'), t('Table'));
                 }
             } elseif ($targetValue == null) { // just show databases w/ targetTable & targetValue
-                $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable`");
+                $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable`"); // Returns FALSE if execution fails
                 if ($resultSet) {
                     $tableHeader = array(t('Database'), t('Table'), t('Field'));
                 }
@@ -175,6 +178,11 @@ function _buildDatabaseListz($targetTable = null, $targetField = null, $targetVa
                     if (!empty($result)) {
                         $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'));
                     }
+                }
+            } else {
+                $rowCount = $dbh->exec("UPDATE `$targetTable` SET `$targetField`= '$replaceValue' WHERE `$targetField` = '$targetValue'");
+                if ($rowCount > 0) {
+                    $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'), t('New Value'));
                 }
             }
             if ($tableHeader) { // test for valid DB to use
