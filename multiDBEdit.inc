@@ -78,17 +78,17 @@ function outputForm($form, &$form_state)
         $a = 1;
         foreach ($db_List_Header_Message['dbList'] as $field) {
             if ($targetTable == null) {
-                $tableHeader = array(t('Databse'));
+                $tableHeader = array(t('Database'));
                 $tableRowS[] = array($field);
             } elseif ($targetField == null) {
-                $tableHeader = array(t('Databse'), t('Table'));
+                $tableHeader = array(t('Database'), t('Table'));
                 $tableRowS[] = array($field, $targetTable);
             } elseif ($targetValue == null) {
-                $tableHeader = array(t('Databse'), t('Table'), t('Field'));
+                $tableHeader = array(t('Database'), t('Table'), t('Field'));
                 $tableRowS[] = array($field, $targetTable, $targetField);
             } elseif ($replaceValue == null) {
                 $tableRowS[] = array($field, $targetTable, $targetField, $targetValue);
-                $tableHeader = array(t('Databse'), t('Table'), t('Field'), t('Field Value'));
+                $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'));
             }
         }
     } else {
@@ -96,11 +96,14 @@ function outputForm($form, &$form_state)
     }
 
     if (!empty($db_List_Header_Message['dbList'])) {
-        $a = $db_List_Header_Message['dbList'];
         $output = array(
             '#theme' => 'table',
             '#header' => $tableHeader,
             '#rows' => $tableRowS,);
+    } else {
+        $output = array(
+            '#theme' => 'table',
+            '#header' => array(t('No Database(s) found w/ matching criteria.')),);
     }
 
     $message = array(
@@ -154,23 +157,23 @@ function _buildDatabaseListz($targetTable = null, $targetField = null, $targetVa
         if ($ndb) { // test for valid DB to use
             if ($targetTable == null) { // Show all databases available
                 $result = true;
-                $tableHeader = array(t('Databse'));
+                $tableHeader = array(t('Database'));
             } elseif ($targetField == null) { // just show databases w/ targetTable
                 $resultSet = $dbh->query("SELECT * FROM `$targetTable`");
                 if ($resultSet) {
-                    $tableHeader = array(t('Databse'), t('Table'));
+                    $tableHeader = array(t('Database'), t('Table'));
                 }
             } elseif ($targetValue == null) { // just show databases w/ targetTable & targetValue
                 $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable`");
                 if ($resultSet) {
-                    $tableHeader = array(t('Databse'), t('Table'), t('Field'));
+                    $tableHeader = array(t('Database'), t('Table'), t('Field'));
                 }
             } elseif ($replaceValue == null) {
                 $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable` WHERE `$targetField` = '$targetValue'");
                 if ($resultSet) {
                     $result = $resultSet->fetchAll(PDO::FETCH_ASSOC); // resultSet must be tested for not only successful execution but for having returned table rows as well
                     if (!empty($result)) {
-                        $tableHeader = array(t('Databse'), t('Table'), t('Field'), t('Field Value'));
+                        $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'));
                     }
                 }
             }
