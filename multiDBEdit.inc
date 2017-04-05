@@ -58,9 +58,10 @@ function entryForm($form, &$form_state)
         $form['replaceField'] = array(
             '#prefix' => '<div id="replaceFieldID">',
             '#suffix' => '</div>',
-            '#type' => 'value',
+            '#type' => 'hidden',
             '#title' => t('Relace Value'),
             '#required' => FALSE,
+            '#disabled' => TRUE,
         );
     }
 
