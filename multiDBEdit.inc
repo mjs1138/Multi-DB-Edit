@@ -14,6 +14,7 @@ require_once(__DIR__ . '/../DBAccess.config');
 
 function entryForm($form, &$form_state)
 {
+    $a = 1;
     $form['dbTable'] = array(
         '#type' => 'textfield',
         '#title' => t('DB Table'),
@@ -25,21 +26,65 @@ function entryForm($form, &$form_state)
         '#required' => FALSE,
     );
     $form['targetValue'] = array(
+        '#prefix' => '<div id="targetValue">',
+        '#suffix' => '</div>',
         '#type' => 'textfield',
         '#title' => t('Target Value'),
         '#required' => FALSE,
     );
-    $form['replaceValue'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Relace Value'),
-        '#required' => FALSE,
+
+    $form['replace_value'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Replace Target Value?'),
+        '#ajax' => array(
+            'callback' => 'ajax_multiDBEdit_callback',
+            'wrapper' => 'replaceFieldID',
+            'effect' => 'fade',
+        ),
     );
+
+    $a = 1;
+    // Since checkboxes return TRUE or FALSE, we have to check that
+    // $form_state has been filled as well as what it contains.
+    if (!empty($form_state['values']['replace_value']) && $form_state['values']['replace_value']) {
+        $form['replaceField'] = array(
+            '#prefix' => '<div id="replaceFieldID">',
+            '#suffix' => '</div>',
+            '#type' => 'textfield',
+            '#title' => t('Relace Value'),
+            '#required' => FALSE,
+        );
+    } else { // it's necessary to have a place-holder elemement so that the ajax callback has a element to update.
+        $form['replaceField'] = array(
+            '#prefix' => '<div id="replaceFieldID">',
+            '#suffix' => '</div>',
+            '#type' => 'value',
+            '#title' => t('Relace Value'),
+            '#required' => FALSE,
+        );
+    }
+
     $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Submit',
     );
     return $form;
 }
+
+/**
+ * Callback for autotextfields.
+ *
+ * Selects the piece of the form we want to use as replacement text and returns
+ * it as a form (renderable array).
+ *
+ * @return array
+ *   Renderable array (the textfield element)
+ */
+function ajax_multiDBEdit_callback($form, $form_state)
+{
+    return $form['replaceField'];
+}
+
 
 /**
  * @param $form
@@ -52,7 +97,7 @@ function entryForm_submit(&$form, &$form_state)
     $_SESSION['data']['table'] = $form_state['values']['dbTable'];
     $_SESSION['data']['field'] = $form_state['values']['dbField'];
     $_SESSION['data']['targetValue'] = $form_state['values']['targetValue'];
-    $_SESSION['data']['replaceValue'] = $form_state['values']['replaceValue'];
+    $_SESSION['data']['replaceField'] = $form_state['values']['replaceField'];
 
     // Form Returns to new URL
     $form_state['redirect'] = 'multiDBEdit/results';
@@ -68,7 +113,7 @@ function outputForm($form, &$form_state)
     $targetTable = $_SESSION['data']['table'];
     $targetField = $_SESSION['data']['field'];
     $targetValue = $_SESSION['data']['targetValue'];
-    $replaceValue = $_SESSION['data']['replaceValue'];
+    $replaceValue = $_SESSION['data']['replaceField'];
     $output = "";
     $tableRowS = array();
 
@@ -127,7 +172,7 @@ function outputForm_submit(&$form, &$form_state)
     $targetTable = $_SESSION['data']['table'];
     $targetField = $_SESSION['data']['field'];
     $targetValue = $_SESSION['data']['targetValue'];
-    $replaceValue = $_SESSION['data']['replaceValue'];
+    $replaceValue = $_SESSION['data']['replaceField'];
 
     // Form Returns to new URL
     $form_state['redirect'] = 'multiDBEdit/results';
