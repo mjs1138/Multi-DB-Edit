@@ -51,7 +51,7 @@ function entryForm($form, &$form_state)
             '#prefix' => '<div id="replaceFieldID">',
             '#suffix' => '</div>',
             '#type' => 'textfield',
-            '#title' => t('Relace Value'),
+            '#title' => t('Replace Value'),
             '#required' => FALSE,
         );
     } else { // it's necessary to have a place-holder elemement so that the ajax callback has a element to update.
@@ -59,9 +59,8 @@ function entryForm($form, &$form_state)
             '#prefix' => '<div id="replaceFieldID">',
             '#suffix' => '</div>',
             '#type' => 'hidden',
-            '#title' => t('Relace Value'),
-            '#required' => FALSE,
-            '#disabled' => TRUE,
+//            '#title' => t('Replace Value'),
+//            '#required' => FALSE,
         );
     }
 
