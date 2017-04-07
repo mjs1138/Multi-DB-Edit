@@ -121,22 +121,28 @@ function outputForm($form, &$form_state)
 
     if (!empty($db_List_Header_Message['dbList'])) {  // There are DBs
         $a = 1;
-        foreach ($db_List_Header_Message['dbList'] as $field) {
+        foreach ($db_List_Header_Message['dbList'] as $dbName => $fieldValues) {
             if ($targetTable == null) {
                 $tableHeader = array(t('Database'));
-                $tableRowS[] = array($field);
+                $tableRowS[] = array($dbName);
             } elseif ($targetField == null) {
-                $tableHeader = array(t('Database'), t('Table'));
-                $tableRowS[] = array($field, $targetTable);
+                $tableHeader = array(t('Database ').t('(Table: ').$targetTable.')');
+                $tableRowS[] = array($dbName);
             } elseif ($targetValue == null) {
-                $tableHeader = array(t('Database'), t('Table'), t('Field'));
-                $tableRowS[] = array($field, $targetTable, $targetField);
+                $tableHeader = array(t('Database ').t('(Table: ').$targetTable.t(' Field: '.$targetField).')', 'Value');
+                foreach ($db_List_Header_Message['dbList'][$dbName] as $fieldValues) {
+                    $tableRowS[] = array($dbName, $fieldValues[$targetField]);
+                }
             } elseif ($replaceValue == null) {
-                $tableRowS[] = array($field, $targetTable, $targetField, $targetValue);
-                $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Current Value'));
+                $tableHeader = array(t('Database ').t('(Table: ').$targetTable.t(' Field: '.$targetField).')', t('Current Value'));
+                foreach ($db_List_Header_Message['dbList'][$dbName] as $fieldValues) {
+                    $tableRowS[] = array($dbName, $fieldValues[$targetField]);
+                }
             } else {
-                $tableRowS[] = array($field, $targetTable, $targetField, $targetValue, $replaceValue);
-                $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Prior Value'), t('New Value'));
+                $tableHeader = array(t('Database ').t('(Table: ').$targetTable.t(' Field: '.$targetField).')', t('Prior Value'), t('New Value'));
+                foreach ($db_List_Header_Message['dbList'][$dbName] as $fieldValues) {
+                    $tableRowS[] = array($dbName, $targetValue, $replaceValue);
+                }
             }
         }
     } else {
@@ -198,43 +204,56 @@ function _buildDatabaseListz($targetTable = null, $targetField = null, $targetVa
     $databaseS = $dbS->fetchAll(PDO::FETCH_ASSOC);
 
     $result = false;
-    $tableHeader = "";
+    $dataToReturn = "";
     foreach ($databaseS as $db) {
         $ndb = $dbh->query('USE ' . $db['Database']); // test if valid DB name (i.e. no '.' or '-')
 
         if ($ndb) { // test for valid DB to use
             if ($targetTable == null) { // Show all databases available
                 $result = true;
-                $tableHeader = array(t('Database'));
+                $dataToReturn = TRUE;
             } elseif ($targetField == null) { // just show databases w/ targetTable
                 $resultSet = $dbh->query("SELECT * FROM `$targetTable`"); // Returns FALSE if execution fails
                 if ($resultSet) {
-                    $tableHeader = array(t('Database'), t('Table'));
+                    $dataToReturn = array(t('Database'), t('Table'));
                 }
-            } elseif ($targetValue == null) { // just show databases w/ targetTable & targetValue
+            } elseif ($targetValue == null) { // just show databases w/ targetTable & their targetValue
+
                 $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable`"); // Returns FALSE if execution fails
                 if ($resultSet) {
-                    $tableHeader = array(t('Database'), t('Table'), t('Field'));
+                    $result = $resultSet->fetchAll(PDO::FETCH_ASSOC);
+//                    $data_0 = unserialize($result[0][$targetField]);
+//                    $data_1 = unserialize($result[1][$targetField]);
+//                    $data_2 = unserialize($result[2][$targetField]);
+//                    $data_3 = unserialize($result[3][$targetField]);
+
+                    $dataToReturn = TRUE;
                 }
             } elseif ($replaceValue == null) {
                 $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable` WHERE `$targetField` = '$targetValue'");
                 if ($resultSet) {
                     $result = $resultSet->fetchAll(PDO::FETCH_ASSOC); // resultSet must be tested for not only successful execution but for having returned table rows as well
                     if (!empty($result)) {
-                        $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'));
+                        $dataToReturn = TRUE;
                     }
                 }
             } else {
                 $rowCount = $dbh->exec("UPDATE `$targetTable` SET `$targetField`= '$replaceValue' WHERE `$targetField` = '$targetValue'");
                 if ($rowCount > 0) {
-                    $tableHeader = array(t('Database'), t('Table'), t('Field'), t('Field Value'), t('New Value'));
+                    $resultSet = $dbh->query("SELECT `$targetField` FROM `$targetTable` WHERE `$targetField` = '$replaceValue'");
+                    if ($resultSet) {
+                        $result = $resultSet->fetchAll(PDO::FETCH_ASSOC); // resultSet must be tested for not only successful execution but for having returned table rows as well
+                        if (!empty($result)) {
+                            $dataToReturn = TRUE;
+                        }
+                    }
                 }
             }
-            if ($tableHeader) { // test for valid DB to use
-                $dbList[] = $db['Database'];
-                $tableHeader = "";
+            if ($dataToReturn) {
+                $dbList[$db['Database']] = $result;
+                $dataToReturn = FALSE;
             }
-        } else { // non-cononical DB name
+        } else { // non-cononical DB name found
             $nonConFlag = true;
         }
 
@@ -245,7 +264,6 @@ function _buildDatabaseListz($targetTable = null, $targetField = null, $targetVa
     }
 
     $db_List_Message['dbList'] = $dbList;
-    $db_List_Message['header'] = $tableHeader;
     $db_List_Message['message'] = $message;
     return $db_List_Message;
 }
