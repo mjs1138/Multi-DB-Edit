@@ -223,8 +223,8 @@ function _buildDatabaseListz($targetTable = null, $targetField = null, $targetVa
                 if ($resultSet) {
                     $result = $resultSet->fetchAll(PDO::FETCH_ASSOC);
 //                    $data_0 = unserialize($result[0][$targetField]);
-                    $data_1 = unserialize($result[1][$targetField]);
-                    $serData_1 = serialize($data_1);
+//                    $data_1 = unserialize($result[1][$targetField]);
+//                    $serData_1 = serialize($data_1);
 //                    $data_2 = unserialize($result[2][$targetField]);
 //                    $data_3 = unserialize($result[3][$targetField]);
 
