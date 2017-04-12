@@ -12,6 +12,7 @@
  */
 require_once(__DIR__ . '/../DBAccess.config');
 
+
 function entryForm($form, &$form_state)
 {
     $a = 1;
