@@ -1,17 +1,11 @@
 <?php
-/**
- * @file
- * This is the Form API Tutorial from the handbook.
- *
- * It goes through several form examples of increasing complexity to demonstrate
- * Drupal 7 Form API.
- *
- * Links are provided inline for the related handbook pages.
- *
- * @see http://drupal.org/node/262422
- */
-require_once(__DIR__ . '/../DBAccess.config');
+if ($_SERVER['SERVER_NAME'] == 'localhost') {
+    require_once(__DIR__ . '/../DBAccess.config');
+} else {
+    require_once(__DIR__ . '/DBAccess.config');
+}
 
+require_once(__DIR__ . '/../DBAccess.config');
 
 function entryForm($form, &$form_state)
 {

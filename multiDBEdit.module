@@ -1,5 +1,10 @@
 <?php
-require_once(__DIR__ . '/../DBAccess.config');
+if ($_SERVER['SERVER_NAME'] == 'localhost') {
+    require_once(__DIR__ . '/../DBAccess.config');
+} else {
+    require_once(__DIR__ . '/DBAccess.config');
+}
+
 
 
 function multiDBEdit_menu() {
